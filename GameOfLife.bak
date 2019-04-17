@@ -1,0 +1,30 @@
+;; The first three lines of this file were inserted by DrRacket. They record metadata
+;; about the language level of this file in a form that our tools can easily process.
+#reader(lib "htdp-beginner-abbr-reader.ss" "lang")((modname GameOfLife) (read-case-sensitive #t) (teachpacks ()) (htdp-settings #(#t constructor repeating-decimal #f #t none #f () #f)))
+(require 2htdp/image)
+(require 2htdp/universe)
+
+(define ALIVE 1)
+(define DEAD 0)
+
+
+(define (row width)
+  (if (> width 0)
+      (cons (random 2) (row (- width 1)))
+      empty))
+
+(define (board width height)
+  (if (> height 0)
+      (cons (row width) (board width (- height 1)))
+      empty))
+
+;; Board Natural Natural -> Natural
+;; returns the value at a location on the board, returns dead if off the board
+(define (value board x y)
+  (if (or (< x 0) (< y 0) (>= x (length (list-ref board 0))) (>= y (length board)))
+      DEAD
+      (list-ref (list-ref board y) x)))
+      
+
+(define (count-neighbors board x y)
+  (...))

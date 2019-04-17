@@ -1,0 +1,67 @@
+;; The first three lines of this file were inserted by DrRacket. They record metadata
+;; about the language level of this file in a form that our tools can easily process.
+#reader(lib "htdp-intermediate-lambda-reader.ss" "lang")((modname |tic tac toe starter|) (read-case-sensitive #t) (teachpacks ()) (htdp-settings #(#t constructor repeating-decimal #f #t none #f () #f)))
+(require 2htdp/image)
+(require 2htdp/universe)
+(require racket/list)
+
+;; "strongly suggest" constructing a word state that has (at minimum):
+;;      state of the board
+;;      whose turn it is
+
+(define SIZE 300) ;; can be between 300 and 900
+
+;; can use this to draw the board
+(define PEN (make-pen "LightSalmon" 15 "solid" "round" "round"))
+(define MTS (empty-scene SIZE SIZE))
+(define TEXT-SIZE (/ SIZE 6))
+(define X (text "X" TEXT-SIZE "red"))
+(define O (text "O" TEXT-SIZE "blue"))
+(define BUFFER (/ SIZE 10))  
+
+
+;; one easy way to draw a line
+(add-line MTS 50 50 250 50 PEN)
+
+;; Board -> Board
+;; makes the next move of the computer player
+;; !!!
+(define (next-move board) board)
+
+;; Board Position Player -> Board
+;; adds an x or an o to the board at the position for the given player
+;; !!!
+(define (place board posn player) board)
+
+;; Board Posn -> Boolean
+;; determines if the marker can be placed at that position
+;; !!!
+(define (valid? board posn) false)
+
+;; Board -> False | Natural
+;; determines if the game is finished, and if so returns the natural of the player that won
+;; Returns one of:
+;;       - False
+;;       - 1 (player 1 wins)
+;;       - 2 (player 2 wins)
+;;       - 3 (draw)
+;; !!!
+(define (done? board) false)
+
+;; will need these 3 for assignment
+(define (tock ws) ws)
+(define (render ws) MTS)
+(define (handle-click ws x y me) ws)
+
+;; will need this for extra credit
+(define (handle-key ws ke) ws)
+
+(define-struct ws (board player))
+
+(define (main ws)
+  (big-bang ws ; WS
+    (on-tick tock) ; WS -&gt; WS
+    (to-draw render) ; WS -&gt; Image
+    (on-mouse handle-click) ; WS Integer Integer MouseEvent -&gt; WS
+    (on-key handle-key))) ; WS KeyEvent -&gt; WS
+

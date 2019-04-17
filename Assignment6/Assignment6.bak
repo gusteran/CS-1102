@@ -1,0 +1,106 @@
+#lang racket
+
+;; #:transparent makes structures display a bit nicer
+(define-struct graph (name nodes) #:transparent #:mutable)
+
+(define-struct node (name edges) #:transparent #:mutable)
+
+;; *******************************************************
+;; you don't need to understand this part
+;; just be sure you use my-eval instead of eval
+(define-namespace-anchor a)
+(define ns (namespace-anchor->namespace a))
+
+
+(define-syntax my-eval
+  (syntax-rules ()
+    [(my-eval arg)
+     (eval arg ns)]))
+;; *******************************************************
+
+;; some examples of Racket weirdness you will need to work around
+(define x 3)
+(define y 5)
+(set! y 6)
+
+;; in the interpreter, try:
+;;     (set! x 10)
+;;     (set! y 10)
+;; first one fails, second one works
+;; --> if you want a variable you can change later, will need both
+;;     define and set! in your macro
+;; (create z 99) could be a handy macro to define and set a variable
+
+(define z (list y))
+;          (list 6)
+(set! y 8)
+;; in the interpreter, try
+;;        y
+;;        z
+;; it looks like values don't update properly.  how can we make it update properly?
+
+(define z2 (list (quote y)))
+(set! y 11)
+;; what is z2?
+;; it's '(y)
+;; how to get back the 11?
+
+;; how about (my-eval (first z2)) ?
+;;    -> that's how we'll store lists of nodes
+
+(define-syntax create
+  (syntax-rules ()
+    [(create var value)
+     ; (if (false? (identifier-binding var))
+     (begin (define var 0) (set! var value))]))
+; (set! var value))]))
+
+;; Graph -> Graph
+;; only adds a node to the children if its unqiue
+(define (add-unique graph node)
+  (if (false? (member (graph
+
+(define-syntax new
+  (syntax-rules (graph)
+    [(new graph var)
+     (create var (make-graph (quote var) empty))]))
+
+#;(define-syntax vertex
+    (syntax-rules (in)
+      [(vertex v1 in v2)
+       (let [(v1 (make-node (quote v1) empty))]
+         (set! v2 (make-graph (quote v2) (cons (quote v1) (graph-nodes v2)))))]))
+
+(define-syntax vertex
+  (syntax-rules (in)
+    [(vertex v1 in v2)
+     (begin (create v1 (make-node (quote v1) empty))
+            (set! v2 (make-graph (quote v2) (cons (quote v1) (graph-nodes v2)))))]))
+
+(define-syntax edge
+  (syntax-rules ()
+    [(edge v1 v2)
+     (set! v1 (make-node (quote v1) (cons (quote v2) (node-edges v1))))]))
+
+(define-syntax edges
+  (syntax-rules (-> <->)
+     [(edges v1 -> v2)
+     (edge v1 v2)]
+    [(edges v1 <-> v2)
+     (begin (edge v1 v2) (edge v2 v1))]
+    [(edges v1 -> v2 ->...)
+     (begin (edge v1 v2) (edges v2 ->...))]
+    [(edges v1 <-> v2 ->...)
+     (begin (edge v1 v2) (edge v2 v1) (edges v2 ->...))]
+    [(edges v1 -> v2 <->...)
+     (begin (edge v1 v2) (edges v2 <->...))]
+    [(edges v1 <-> v2 <->...)
+     (begin (edge v1 v2) (edge v2 v1) (edges v2 <->...))]))
+
+(new graph g0)
+(vertex n0 in g0)
+(vertex n1 in g0)
+(vertex n2 in g0)
+(edge n0 n1)
+(edge n1 n2)
+;(edges n0 -> n1 <-> n2 -> n0)
